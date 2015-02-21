@@ -28,10 +28,6 @@ class Streamer:
             self._write_u32(buf_size)
             self.out.write(bytes_buf)
 
-    def write_chunk(self, buf):
-        if buf:
-            self._write_raw_chunk(buf)
-
     def end_file(self):
         self._write_u32(0)
 
@@ -44,18 +40,13 @@ class Streamer:
     def __enter__(self):
         return self
 
-i = sys.stdin.buffer
 BUF_SIZE=2**12
 with Streamer(sys.stdout.buffer) as out:
-    while True:
-        sys.stderr.write("Filename: ")
-        filename = input()
+    for filename in sys.argv[1:]:
         out.start_file(filename)
-        try:
-            while True:
-                chunk = i.read1(BUF_SIZE)
+        with open(filename, "rb") as i:
+            chunk = True
+            while chunk:
+                chunk = i.read(BUF_SIZE)
                 out.write_chunk(chunk)
-        except KeyboardInterrupt:
-            #all done here
-            pass
         out.end_file()
