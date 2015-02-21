@@ -28,6 +28,12 @@ class Streamer:
             self._write_u32(buf_size)
             self.out.write(bytes_buf)
 
+    def write_from(self, reader):
+        chunk = True
+        while chunk:
+            chunk = i.read(BUF_SIZE)
+            out.write_chunk(chunk)
+
     def end_file(self):
         self._write_u32(0)
 
@@ -45,8 +51,5 @@ with Streamer(sys.stdout.buffer) as out:
     for filename in sys.argv[1:]:
         out.start_file(filename)
         with open(filename, "rb") as i:
-            chunk = True
-            while chunk:
-                chunk = i.read(BUF_SIZE)
-                out.write_chunk(chunk)
+            out.write_from(i)
         out.end_file()
