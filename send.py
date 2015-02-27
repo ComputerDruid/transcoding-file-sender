@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+import sys, subprocess, signal
 
 def encode_u32(num):
     if num >= 2 ** 32:
@@ -46,10 +46,32 @@ class Streamer:
     def __enter__(self):
         return self
 
+class FlacToOggReader:
+    def __init__(self, filename):
+        self.filename = filename
+
+    def read(self, num):
+        return self.oggenc.stdout.read(num)
+
+    def __exit__(self, type, value, traceback):
+        try:
+            self.oggenc.send_signal(signal.SIGPIPE)
+        except:
+            pass
+
+    def __enter__(self):
+        with open(self.filename, "rb") as f:
+            self.oggenc = subprocess.Popen(["oggenc", "-"], stdout=subprocess.PIPE, stdin=f)
+        return self
+
 BUF_SIZE=2**12
 with Streamer(sys.stdout.buffer) as out:
     for filename in sys.argv[1:]:
         out.start_file(filename)
-        with open(filename, "rb") as i:
+        if filename.endswith(".flac"):
+            reader = FlacToOggReader(filename)
+        else:
+            reader = open(filename, "rb")
+        with reader as i:
             out.write_from(i)
         out.end_file()
