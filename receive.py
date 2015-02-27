@@ -2,6 +2,8 @@
 
 import sys
 import struct
+import posixpath
+import os
 
 class NoMoreFilesError(Exception):
     pass
@@ -40,6 +42,8 @@ class StreamingReader:
             raise NoMoreFilesError("No more files left in the stream")
 
         bytes_left = self.read_u32()
+        dir_path = posixpath.dirname(filename)
+        os.makedirs(dir_path, exist_ok = True)
         with open(filename, "wb") as out:
             while bytes_left > 0:
                 while bytes_left > 0:
