@@ -67,11 +67,13 @@ class FlacToOggReader:
 BUF_SIZE=2**12
 with Streamer(sys.stdout.buffer) as out:
     for filename in sys.argv[1:]:
-        out.start_file(filename)
+        send_filename = filename
         if filename.endswith(".flac"):
             reader = FlacToOggReader(filename)
+            send_filename = filename[:-4] + "ogg"
         else:
             reader = open(filename, "rb")
+        out.start_file(send_filename)
         with reader as i:
             out.write_from(i)
         out.end_file()
