@@ -56,4 +56,4 @@ class StreamingReader:
             pass
 
 i = StreamingReader(sys.stdin.buffer)
-print(i.read_files())
+i.read_files()
