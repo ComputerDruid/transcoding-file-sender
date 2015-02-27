@@ -47,6 +47,7 @@ class StreamingReader:
                     bytes_left -= len(buf)
                     out.write(buf)
                 bytes_left = self.read_u32()
+        print("Received " + filename)
 
     def read_files(self):
         try:
